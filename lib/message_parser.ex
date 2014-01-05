@@ -25,7 +25,7 @@ defmodule MessageParser do
 
       Hello world
 
-  The return value of parse_*_message function would be a keyword list, such as:
+  The return value of parse_* functions would be a keyword list, such as:
 
   ## Parsed request message
 
@@ -84,7 +84,7 @@ defmodule MessageParser do
 
       MessageParser.parse_request(request)
   """
-  @spec parse_request([binary | []]) :: t
+  @spec parse_request(binary) :: t
   def parse_request(msg) do
     parse_message msg, &parse_request_start_line/1
   end
@@ -104,19 +104,17 @@ defmodule MessageParser do
 
       MessageParser.parse_response(response)
   """
-  @spec parse_response([binary | []]) :: t 
+  @spec parse_response(binary) :: t 
   def parse_response(msg) do
     parse_message msg, &parse_response_start_line/1
   end
 
-  # If incoming messages are char lists, then convert them to binaries and call funciton on them.
+  # Only binaries are accepted
   @spec parse_message(binary, (binary -> t)) :: t
   defp parse_message(msg, parser) do
     cond do
       is_binary(msg) ->
         parse_http_message msg, parser
-      is_list(msg) ->
-        parse_http_message list_to_bitstring(msg), parser
       true ->
         raise(ArgumentError, message: "List or Binary expected")
     end
